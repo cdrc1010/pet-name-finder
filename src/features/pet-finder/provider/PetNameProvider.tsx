@@ -15,10 +15,18 @@ const PetNameProvider: FunctionComponent<PetNameProviderProps> = ({
     firstLetter: "",
   });
 
-  const { nameOptionsBasedOnFilter } = usePetNameOptions(filters);
+  const { nameOptionsBasedOnFilter, page, setPage, totalPages } =
+    usePetNameOptions(filters);
   return (
     <PetNameContext.Provider
-      value={{ filters, setFilters, nameOptionsBasedOnFilter }}
+      value={{
+        filters,
+        setFilters,
+        nameOptionsBasedOnFilter,
+        page,
+        setPage,
+        totalPages,
+      }}
     >
       {children}
     </PetNameContext.Provider>
