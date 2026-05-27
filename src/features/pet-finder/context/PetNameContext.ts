@@ -7,13 +7,16 @@ export type PetNameFilters = {
   firstLetter: string;
 };
 
-export type PetNameContextProps = {
+export type PetNameContextType = {
   filters: PetNameFilters;
   setFilters: React.Dispatch<React.SetStateAction<PetNameFilters>>;
   nameOptionsBasedOnFilter: PetName[];
+  page: number;
+  setPage: (page: number) => void;
+  totalPages: number;
 };
 
-const PetNameContext = createContext<PetNameContextProps>({
+const PetNameContext = createContext<PetNameContextType>({
   filters: {
     gender: "",
     category: [],
@@ -21,6 +24,9 @@ const PetNameContext = createContext<PetNameContextProps>({
   },
   setFilters: () => {},
   nameOptionsBasedOnFilter: [],
+  page: 0,
+  setPage: () => {},
+  totalPages: 0,
 });
 
 export default PetNameContext;

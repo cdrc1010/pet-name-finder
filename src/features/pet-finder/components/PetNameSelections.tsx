@@ -16,13 +16,12 @@ import type { PetName } from "../types/PetNameResponse.types";
 import usePetNameContext from "../hooks/usePetNameContext";
 import { Definition } from "@/components/common/Definition";
 
-const VISIBLE_COUNT = 9;
 const ACTIVE_INDEX = 4;
 
 const PetNameSelections = () => {
-  const [startIndex, setStartIndex] = useState(0);
   const [selectedName, setSelectedName] = useState<PetName | null>(null);
-  const { nameOptionsBasedOnFilter, filters } = usePetNameContext();
+  const { nameOptionsBasedOnFilter, page, setPage, totalPages } =
+    usePetNameContext();
 
   const groupedNames = useMemo(() => {
     return nameOptionsBasedOnFilter.reduce<Record<string, PetName[]>>(
@@ -35,11 +34,10 @@ const PetNameSelections = () => {
     );
   }, [nameOptionsBasedOnFilter]);
 
-  const names = groupedNames[filters.firstLetter] ?? nameOptionsBasedOnFilter;
-  const visibleNames = names.slice(startIndex, startIndex + VISIBLE_COUNT);
+  const visibleNames = nameOptionsBasedOnFilter;
 
-  const canScrollUp = startIndex > 0;
-  const canScrollDown = startIndex + VISIBLE_COUNT < names.length;
+  const canScrollUp = page > 0;
+  const canScrollDown = page < totalPages - 1;
 
   const handleNameSelect = (name: PetName) => {
     setSelectedName((prev) => (prev?.id === name.id ? null : name));
@@ -117,7 +115,7 @@ const PetNameSelections = () => {
 
           <div className="flex flex-col justify-between">
             <Button
-              onClick={() => setStartIndex((i) => Math.max(0, i - 1))}
+              onClick={() => setPage(page - 1)}
               disabled={!canScrollUp}
               className={cn(
                 "text-red-600 transition-opacity bg-transparent hover:bg-transparent",
@@ -127,7 +125,7 @@ const PetNameSelections = () => {
               <ChevronUp className="size-10" />
             </Button>
             <Button
-              onClick={() => setStartIndex((i) => (canScrollDown ? i + 1 : i))}
+              onClick={() => setPage(page + 1)}
               disabled={!canScrollDown}
               className={cn(
                 "text-red-600 transition-opacity  bg-transparent hover:bg-transparent",
