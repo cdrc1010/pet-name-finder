@@ -1,7 +1,12 @@
 import PetFinderContent from "./PetFinderContent";
+import PetNameProvider from "./provider/PetNameProvider";
 
 const PetFinder = () => {
-  return <PetFinderContent />;
+  return (
+    <PetNameProvider>
+      <PetFinderContent />
+    </PetNameProvider>
+  );
 };
 
 export default PetFinder;

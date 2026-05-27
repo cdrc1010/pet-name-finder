@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 import ALPHABETS from "../../../lib/data/letters.json";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import usePetNameContext from "../hooks/usePetNameContext";
 
 const AlphabetSelection = () => {
-  const [activeLetter, setActiveLetter] = useState("A");
+  const { filters, setFilters } = usePetNameContext();
 
   const handleLetterChange = (letter: string) => {
-    setActiveLetter(letter);
+    setFilters((prev) => ({ ...prev, firstLetter: letter }));
   };
 
   return (
@@ -18,7 +18,7 @@ const AlphabetSelection = () => {
           onClick={() => handleLetterChange(letter)}
           className={cn(
             "w-7 h-7 flex items-center justify-center rounded-full text-sm font-medium transition-colors duration-150 bg-transparent hover:bg-transparent",
-            activeLetter === letter
+            filters.firstLetter === letter
               ? "bg-red-600 text-white"
               : "text-gray-600 hover:text-red-600",
           )}

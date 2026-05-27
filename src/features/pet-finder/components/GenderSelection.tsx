@@ -1,9 +1,14 @@
-import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { GENDER_OPTIONS, type Gender } from "../constants/genderOptions";
+import usePetNameContext from "../hooks/usePetNameContext";
+
+const GENDER_OPTIONS = [
+  { label: "Male", value: "M" },
+  { label: "Female", value: "F" },
+  { label: "Both", value: "Both" },
+] as const;
 
 const GenderSelection = () => {
-  const [selected, setSelected] = useState<Gender>(GENDER_OPTIONS[0]);
+  const { filters, setFilters } = usePetNameContext();
 
   return (
     <div className="flex flex-col items-center gap-4 py-6">
@@ -11,18 +16,18 @@ const GenderSelection = () => {
         Choose your pet's gender
       </p>
       <div className="flex items-center gap-2">
-        {GENDER_OPTIONS.map((option) => (
+        {GENDER_OPTIONS.map(({ label, value }) => (
           <button
-            key={option}
-            onClick={() => setSelected(option)}
+            key={value}
+            onClick={() => setFilters((prev) => ({ ...prev, gender: value }))}
             className={cn(
               "px-5 py-2 rounded-[5px] text-sm font-medium border transition-colors duration-150 border-red-600",
-              selected === option
+              filters.gender === value
                 ? "bg-red-600 text-white hover:bg-red-700"
                 : "bg-white text-red-700 hover:bg-gray-50",
             )}
           >
-            {option}
+            {label}
           </button>
         ))}
       </div>
