@@ -10,40 +10,32 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
-import NAME_OPTIONS from "../../../lib/data/names.json";
 import Dog from "../../../assets/896666b218bed98b9ef8553ee936646ef57108a3.png";
 import { Button } from "@/components/ui/button";
-
-interface PetName {
-  id: string;
-  title: string;
-  definition: string;
-  gender: string[];
-  categories: string[];
-}
+import type { PetName } from "../types/PetNameResponse.types";
+import usePetNameContext from "../hooks/usePetNameContext";
+import { Definition } from "@/components/common/Definition";
 
 const VISIBLE_COUNT = 9;
 const ACTIVE_INDEX = 4;
 
-const stripHtml = (html: string) =>
-  html
-    .replace(/<[^>]*>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .trim();
-
 const PetNameSelections = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [selectedName, setSelectedName] = useState<PetName | null>(null);
+  const { nameOptionsBasedOnFilter, filters } = usePetNameContext();
 
   const groupedNames = useMemo(() => {
-    return NAME_OPTIONS.data.reduce<Record<string, PetName[]>>((acc, name) => {
-      const key = name.title.charAt(0).toUpperCase();
-      acc[key] = [...(acc[key] ?? []), name as PetName];
-      return acc;
-    }, {});
-  }, []);
+    return nameOptionsBasedOnFilter.reduce<Record<string, PetName[]>>(
+      (acc, name) => {
+        const key = name.title.charAt(0).toUpperCase();
+        acc[key] = [...(acc[key] ?? []), name as PetName];
+        return acc;
+      },
+      {},
+    );
+  }, [nameOptionsBasedOnFilter]);
 
-  const names = groupedNames["A"] ?? [];
+  const names = groupedNames[filters.firstLetter] ?? nameOptionsBasedOnFilter;
   const visibleNames = names.slice(startIndex, startIndex + VISIBLE_COUNT);
 
   const canScrollUp = startIndex > 0;
@@ -55,8 +47,8 @@ const PetNameSelections = () => {
 
   const getGenderIcon = (gender: string[]) => {
     if (gender.includes("M"))
-      return <Mars className="w-4 h-4 text-gray-500" strokeWidth={1.5} />;
-    return <Venus className="w-4 h-4 text-gray-500" strokeWidth={1.5} />;
+      return <Mars className="w-10 h-10 text-gray-500" strokeWidth={1.5} />;
+    return <Venus className="w-10 h-10 text-gray-500" strokeWidth={1.5} />;
   };
 
   const getCategoryLabel = (name: PetName) =>
@@ -102,23 +94,19 @@ const PetNameSelections = () => {
           >
             {visibleNames.map((name, idx) => {
               const isActive = idx === ACTIVE_INDEX;
-              const isNearActive =
-                idx === ACTIVE_INDEX - 1 || idx === ACTIVE_INDEX + 1;
               const isSelected = selectedName?.id === name.id;
 
               return (
                 <Button
-                  key={name.id}
+                  key={name.id + idx}
                   onClick={() => handleNameSelect(name)}
                   className={cn(
-                    "text-left leading-7 select-none transition-all duration-150  bg-transparent hover:bg-transparent hover:text-red-500",
+                    "text-left leading-7 select-none transition-all duration-150  bg-transparent hover:bg-transparent hover:text-red-500 text-gray-500 text-lg font-medium ",
                     isSelected
-                      ? "text-red-600 font-bold text-xl"
-                      : isActive && !selectedName
-                        ? "text-red-600 font-bold text-2xl leading-9"
-                        : isNearActive && !selectedName
-                          ? "text-gray-500 text-lg font-medium"
-                          : "text-gray-300 text-lg",
+                      ? "text-red-600 font-bold text-3xl"
+                      : isActive &&
+                          !selectedName &&
+                          "text-red-600 font-bold text-3xl leading-9",
                   )}
                 >
                   {name.title}
@@ -153,10 +141,8 @@ const PetNameSelections = () => {
       </div>
 
       {selectedName && (
-        <div className="w-3/5 flex flex-col justify-between ">
-          {/* Top section */}
+        <div className="w-3/5 flex flex-col justify-between">
           <div>
-            {/* Gender + category */}
             <div className="flex items-center gap-2 mb-5">
               {getGenderIcon(selectedName.gender)}
               <span className="text-sm text-gray-500">
@@ -166,18 +152,14 @@ const PetNameSelections = () => {
 
             <Separator className="mb-6 bg-gray-200" />
 
-            {/* Definition */}
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {stripHtml(selectedName.definition)}
+            <p className="text-sm text-gray-600 leading-relaxed text-justify">
+              <Definition definition={selectedName.definition} />
             </p>
           </div>
 
-          {/* Bottom section */}
           <div>
             <Separator className="mb-4 bg-gray-200" />
-            <p className="text-xs text-gray-400 mb-2 text-center">
-              Related name
-            </p>
+            <p className="text-xs text-gray-400 mb-2 text-left">Related name</p>
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">
                 {relatedNames.join(" · ")}
