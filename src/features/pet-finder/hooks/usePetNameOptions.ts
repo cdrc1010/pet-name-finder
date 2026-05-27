@@ -3,10 +3,13 @@ import NAME_OPTIONS from "../../../lib/data/names.json";
 import { useEffect, useState } from "react";
 import type { PetName } from "../types/PetNameResponse.types";
 
+const PAGE_SIZE = 9;
+
 const usePetNameOptions = (filter: PetNameFilters) => {
+  const [page, setPage] = useState(0);
   const [nameOptionsBasedOnFilter, setNameOptionsBasedOnFilter] = useState<
     PetName[]
-  >(NAME_OPTIONS.data);
+  >([]);
 
   useEffect(() => {
     const filteredNames = NAME_OPTIONS.data.filter((option) => {
@@ -27,9 +30,22 @@ const usePetNameOptions = (filter: PetNameFilters) => {
     });
 
     setNameOptionsBasedOnFilter(filteredNames);
+    setPage(0);
   }, [filter]);
 
-  return { nameOptionsBasedOnFilter };
+  const totalPages = Math.ceil(nameOptionsBasedOnFilter.length / PAGE_SIZE);
+  const paginatedNames = nameOptionsBasedOnFilter.slice(
+    page * PAGE_SIZE,
+    (page + 1) * PAGE_SIZE,
+  );
+
+  return {
+    nameOptionsBasedOnFilter: paginatedNames,
+    allFilteredNames: nameOptionsBasedOnFilter,
+    page,
+    setPage,
+    totalPages,
+  };
 };
 
 export default usePetNameOptions;
